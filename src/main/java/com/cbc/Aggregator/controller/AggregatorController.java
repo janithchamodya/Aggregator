@@ -4,6 +4,7 @@ import com.cbc.Aggregator.service.PropertyLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +60,15 @@ public class AggregatorController {
             logger.info(responsePayload.toString());
             return new ResponseEntity<>(responsePayload, HttpStatus.OK);
 
-        } catch (Exception e) {
+        }catch (ResourceAccessException resourceAccessException){
+            logger.error("Error while forwarding GET request: ", resourceAccessException);
+            responsePayload.put("status", "FAILED");
+            responsePayload.put("message", "Oops! The page you requested could not be found.");
+            logger.info(responsePayload.toString());
+            return new ResponseEntity<>(responsePayload, HttpStatus.NOT_FOUND);
+
+        }
+        catch (Exception e) {
             logger.error("Error while forwarding POST request: ", e);
             responsePayload.put("status", "FAILED");
             responsePayload.put("message", "An error occurred while forwarding the request.");
@@ -102,7 +111,16 @@ public class AggregatorController {
             logger.info(responseMap.toString());
             return new ResponseEntity<>(responseMap, HttpStatus.OK);
 
-        } catch (Exception e) {
+        }catch (ResourceAccessException resourceAccessException){
+            logger.error("Error while forwarding GET request: ", resourceAccessException);
+            responseMap.put("status", "FAILED");
+            responseMap.put("message", "Oops! The page you requested could not be found.");
+            logger.info(responseMap.toString());
+            return new ResponseEntity<>(responseMap, HttpStatus.NOT_FOUND);
+
+        }
+
+        catch (Exception e) {
             logger.error("Error while forwarding GET request: ", e);
             responseMap.put("status", "FAILED");
             responseMap.put("message", "An error occurred while forwarding the request.");
